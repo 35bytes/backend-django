@@ -83,7 +83,7 @@ python manage.py runserver
 ```
 ## Crear la primera vista
 Para este ejercicio lo haremos simple. En el archivo **urls.py** importamos **django.http.HttpResponse** y definimos una **funcion** que devuelva una respuesta (en este caso hello_world), y establemos en que path estara esta despuesta:
-```
+```py
 from django.contrib import admin
 from django.urls import path
 from django.http import HttpResponse
