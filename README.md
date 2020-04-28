@@ -13,40 +13,54 @@ Primero debemos tener instalado Python. Luego de la instalacion abrimos la termi
 
 ## Creacion de entorno virtual con Python
 Vamos a crear un entorno virtual para nuestro proyecto, el cual contendra todas las dependencias. Es muy importante que este entorno este fuera de nuestro proyecto. Para crearlo ejecutamos:
+
 ```
 python -m venv .env
 ```
+
 Nota: .env sera el nombre de nuestro entorno.
 
 ## Comandos del entorno
 
 Para **activar** nuestro entorno ejecutamos
+
 ```
 source .env/bin/activate
 ```
+
 Y para **desactivarlo**
+
 ```
 deactivate
 ```
+
 Si queremos **listar las librerias instaladas** usamos
+
 ```
 pip freeze
 ```
+
 ## Instalación de Django
 Para **instalar** la ultima version de Django ejecutamos
+
 ```
 pip install django -U
 ```
+
 ## Django Admin
 Es una interfaz instalada junto con Django que contiene subcomandos que utiles. Para listar los subcomandos utilizamos
+
 ```
 django-admin
 ```
+
 ## Creacion de proyecto
 Para **crear** un proyecto ejecutamos
+
 ```
 django-admin startproject name
 ```
+
 ## Exploracion de los archivos
 Lo primero que veremos es un folder con el nombre de nuestro proyecto, el cual contiene los archivos:
 
@@ -73,16 +87,21 @@ Dentro del archivo setting podemos encontrar variables relevantes para nuestro p
 - **STATIC_URL:** En lugar de resolver la url establecidas en el archivo de urls, va a buscar resolver el archivo estático con la url estalecida en esta variable.
 ## Archivo manage.py
 Este archivo contiene un gran listado de subcomandos los cuales podemos listar con:
+
 ```
 python manage.py
 ```
+
 ## Levantar servicio
 Para levantar el servicio ejecutamos:
+
 ```
 python manage.py runserver
 ```
+
 ## Crear la primera vista
 Para este ejercicio lo haremos simple. En el archivo **urls.py** importamos **django.http.HttpResponse** y definimos una **funcion** que devuelva una respuesta (en este caso hello_world), y establemos en que path estara esta despuesta:
+
 ```py
 from django.contrib import admin
 from django.urls import path
@@ -95,11 +114,14 @@ urlpatterns = [
     path('hello-world', hello_world)
 ]
 ```
+
 Corremos nuestro servidor con
+
 ```
 python manage.py runserver
 ```
-Luego accedemos al **localhost:8000/hello-world** donde podremos acceder a nuestra vista:
+
+Luego accedemos al [**http://localhost:8000/hello-world**](http://localhost:8000/hello-world) donde podremos acceder a nuestra vista:
 
 <div align="center">
   <img src="./readme_img/hello_world.png"
@@ -117,3 +139,36 @@ Luego accedemos al **localhost:8000/hello-world** donde podremos acceder a nuest
     - Si la URL pasa mas argumentos entonces los entregara
     - Si definimos argumentos adicionales tambien lo enviara
 5. Si ninguna URL coincide, Django enviara una excepción
+
+## Separando las vistas
+Es buena practica tener las vistas separadas del archivo url.py, por lo que crearemos un archivo **views.py** dentro de nuestra aplicación que contendra las vistas:
+
+<div align="center">
+  <img src="./readme_img/views.png"
+    width="60%"
+   alt="hello-world-capture">
+</div>
+
+Dentro de nuestro archivo **views.py** importamos **HttpResponse** y traemos nuestra funcion **hello_world()** creado en urls.py
+
+```py
+from django.http import HttpResponse
+
+def hello_world(request):
+    return HttpResponse('Hello, world!')
+```
+
+Ahora debemos importar nuestra funcion al archivo **urls.py**.
+No olvidemos **borrar** la importacion de HttpResponse y la funcion hello_world() en el archivo.
+
+```py
+from django.contrib import admin
+from django.urls import path
+from photogram import views
+
+urlpatterns = [
+    path('hello-world', views.hello_world)
+]
+```
+
+Si revisamos la url [**http://localhost:8000/hello-world**](http://localhost:8000/hello-world) nuestro proyecto seguira funcionando.
