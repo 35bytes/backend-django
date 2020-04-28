@@ -106,3 +106,14 @@ Luego accedemos al **localhost:8000/hello-world** donde podremos acceder a nuest
     width="100%"
    alt="hello-world-capture">
 </div>
+
+
+## Como Django procesa un request
+1. Primero va a buscar en el archivo **settings.py** en la variable **ROOT_URLCONF**
+2. Luego Django desde el archivo **urls.py** carga los modulos de Python definidos en la variable **urlpatterns**
+3. Dentro de **urlpatterns** se busca el patron coincidente a la peticion
+4. Una vez encontrado la URL que coincide, Django importa y llama la vista en una funcion simple en Python. Se le pasa como argumento:
+    - Una instancia del HttpRequest
+    - Si la URL pasa mas argumentos entonces los entregara
+    - Si definimos argumentos adicionales tambien lo enviara
+5. Si ninguna URL coincide, Django enviara una excepción
