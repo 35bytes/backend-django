@@ -65,3 +65,13 @@ Dentro del archivo setting podemos encontrar variables relevantes para nuestro p
 - **LANGUAGE_CODE:** El idioma en el que se interactua con nuestra aplicación.
 - **TIME_ZONE:** Zona horaria en el cual corre nuestra aplicación.
 - **STATIC_URL:** En lugar de resolver la url establecidas en el archivo de urls, va a buscar resolver el archivo estático con la url estalecida en esta variable.
+## Archivo manage.py
+Este archivo contiene un gran listado de subcomandos los cuales podemos listar con:
+```
+python manage.py
+```
+## Levantar servicio
+Para levantar el servicio ejecutamos:
+```
+python manage.py runserver
+```
