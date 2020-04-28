@@ -49,3 +49,19 @@ Lo primero que veremos es un folder con el nombre de nuestro proyecto, el cual c
 - **urls.py:** es el archivo de punto de entrada para todas las peticiones a nuestro proyecto.
 - **wsgi.py:** es usado para el deployment a produccion y es la interfaz WSGI cuando el servidor corre en producción.
 - **manage.py:** es un archivo que no tocamos, pero interactuamos con el durante todo el desarrollo.
+## Archivo settings.py
+Dentro del archivo setting podemos encontrar variables relevantes para nuestro proyecto, las cuales son:
+- **BASE_DIR:** Declara el lugar donde esta corriendo el proyecto. Se considera la linea mas importante.
+- **SECRET_KEY:** Es utilizado para el hashing de las contraseñas y las sesiones que se almacenan en las bases de datos.
+- **DEBUG:** Determina si nuestro proyecto se encuentra en desarrollo.
+- **ALLOWED_HOSTS:** Lista los host que estan permitidos para interactuar con nuestro proyecto.
+- **INSTALLED_APPS:** Lista las aplicaciónes instaladas y ligadas a nuestro proyecto.
+- **MIDDLEWARE:** Lista los middleware instalados y ligados a nuestro proyecto.
+- **ROOT_URLCONF:** Define el archivo principal de urls.
+- **TEMPLATES:** Los templates de nuestras aplicaciónes.
+- **WSGI_APPLICATION:** Archivo de entrada de nuestro WSGI.
+- **DATABASES:** Almacena las configuraciones de las bases de datos.
+- **AUTH_PASSWORD_VALIDATORS:** Los validadores de contraseñas.
+- **LANGUAGE_CODE:** El idioma en el que se interactua con nuestra aplicación.
+- **TIME_ZONE:** Zona horaria en el cual corre nuestra aplicación.
+- **STATIC_URL:** En lugar de resolver la url establecidas en el archivo de urls, va a buscar resolver el archivo estático con la url estalecida en esta variable.
