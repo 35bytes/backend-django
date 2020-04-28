@@ -10,7 +10,7 @@ Vamos a crear un entorno virtual para nuestro proyecto, el cual contendra todas 
 ```
 python -m venv .env
 ```
-Nota: .env sera el nombre de nuestro entorno
+Nota: .env sera el nombre de nuestro entorno.
 
 ## Comandos del entorno
 
@@ -41,3 +41,11 @@ Para **crear** un proyecto ejecutamos
 ```
 django-admin startproject name
 ```
+## Exploracion de los archivos
+Lo primero que veremos es un folder con el nombre de nuestro proyecto, el cual contiene los archivos:
+
+- **\_\_init_\_.py:** la unica finalidad de este archivo es declarar nuestra carpeta como un modulo de python.
+- **settings.py:** es el mas importante, define todas las configuraciones de nuestro proyecto.
+- **urls.py:** es el archivo de punto de entrada para todas las peticiones a nuestro proyecto.
+- **wsgi.py:** es usado para el deployment a produccion y es la interfaz WSGI cuando el servidor corre en producción.
+- **manage.py:** es un archivo que no tocamos, pero interactuamos con el durante todo el desarrollo.
