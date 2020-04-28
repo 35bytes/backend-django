@@ -75,3 +75,28 @@ Para levantar el servicio ejecutamos:
 ```
 python manage.py runserver
 ```
+## Crear la primera vista
+Para este ejercicio lo haremos simple. En el archivo **urls.py** importamos **django.http.HttpResponse** y definimos una **funcion** que devuelva una respuesta (en este caso hello_world), y establemos en que path estara esta despuesta:
+```
+from django.contrib import admin
+from django.urls import path
+from django.http import HttpResponse
+
+def hello_world(request):
+    return HttpResponse('Hello, world!')
+
+urlpatterns = [
+    path('hello-world', hello_world)
+]
+```
+Corremos nuestro servidor con
+```
+python manage.py runserver
+```
+Luego accedemos al **localhost:8000/hello-world** donde podremos acceder a nuestra vista:
+
+<div align="center">
+  <img src="./readme_img/hello_world.png"
+    width="100%"
+   alt="hello-world-capture">
+</div>
