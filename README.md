@@ -2,6 +2,12 @@
   <h1>Guía para proyectos en Django</h1>
 </div>
 
+<div align="center">
+  <img src="./readme_img/django.png"
+    width="60%"
+   alt="hello-world-capture">
+</div>
+
 ## Configuración de entorno de trabajo
 Primero debemos tener instalado Python. Luego de la instalacion abrimos la terminal y nos posicionamos en la ruta que deseamos establecer nuestro proyecto.
 
