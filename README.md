@@ -172,3 +172,47 @@ urlpatterns = [
 ```
 
 Si revisamos la url [**http://localhost:8000/hello-world**](http://localhost:8000/hello-world) nuestro proyecto seguira funcionando.
+
+## El objeto Request
+A traves del objeto request podemos acceder a varios atributos  los cuales se encuentran detallados en la [documentación](https://docs.djangoproject.com/en/3.0/ref/request-response/) de Django. Algunos atributos utiles son:
+
+- **request.method:** nos muestra el metodo HTTP ("GET", "POST", etc.) usado por el request en formato de string en UPPERCASE. Un ejemplo de uso seria:
+
+  ```py
+  if request.method == 'GET':
+      do_something()
+  elif request.method == 'POST':
+      do_something_else()
+  ```
+
+- **request.GET:** Un diccionario que contiene todos los parametros entregados por HTTP GET. Por ejemplo:
+
+  Pasamos una lista de numeros en la variable numbers **(?numbers)**
+
+  ```http
+  http://localhost:8000/numbers/?numbers=10,2,6,7
+  ```
+
+  Para acceder a la lista usamos 
+
+  ```py
+  request.GET['numbers']
+  ```
+
+  *Nota: En el siguiente ejemplo se creo la vista numbers*
+  
+  Un ejemplo practico seria:
+
+  ```py
+  def numbers(request):
+    numbers = request.GET['numbers']
+    return HttpResponse(str(numbers))
+  ```
+
+  De esta forma podemos ver los valores de number a traves de nuetra vista.
+
+  <div align="center">
+    <img src="./readme_img/numbers.png"
+      width="100%"
+    alt="numbers">
+  </div>
