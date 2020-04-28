@@ -19,6 +19,7 @@ from photogram import views
 
 urlpatterns = [
     
-    path('hello-world', views.hello_world)
+    path('hello-world/', views.hello_world),
+    path('numbers/', views.numbers)
 
 ]
