@@ -3,7 +3,7 @@
 </div>
 
 <div align="center">
-  <img src="./readme_img/django.png"
+  <img src="./readme_img/django_2.png"
     width="60%"
    alt="hello-world-capture">
 </div>
