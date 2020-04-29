@@ -216,3 +216,45 @@ A traves del objeto request podemos acceder a varios atributos  los cuales se en
       width="100%"
     alt="numbers">
   </div>
+
+## Pasando argumentos por URL
+Podemos pasar argumentos a traves de la URL, para esto primero creamos la funcion que hara uso de estos parametros y devolvera la vista en el archivo **views.py**
+```py
+from django.http import HttpResponse
+
+def say_hi(request, name, age):
+    if age < 12:
+        message = 'Sorry {}, you are not allowed here'.format(name)
+    else:
+        message = 'Hello {}! Welcome to Photogram'.format(name)
+    
+    return HttpResponse(message)
+```
+
+Luego definimos el path para esta vista en el archivo **urls.py**. Para definir los parametros que pasaran por la url los encerramos con "<>" definiendo el tipo de dato y el nombre del parametro.
+
+```py
+from django.contrib import admin
+from django.urls import path
+from photogram import views
+
+urlpatterns = [
+    path('hi/<str:name>/<int:age>/', views.say_hi)
+]
+```
+
+En el resultado final si ingresamos **age = 26** y **name = Karl** obtenemos el resultado definido en nuestra funcion **say_hi()**:
+
+<div align="center">
+    <img src="./readme_img/url_params_1.png"
+      width="70%"
+    alt="numbers">
+</div>
+
+Pero si cambiamos **age = 10** obtenemos:
+
+<div align="center">
+    <img src="./readme_img/url_params_2.png"
+      width="70%"
+    alt="numbers">
+</div>
