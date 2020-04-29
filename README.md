@@ -258,3 +258,78 @@ Pero si cambiamos **age = 10** obtenemos:
       width="70%"
     alt="numbers">
 </div>
+
+## Crear una app
+Con Django podemos crear una app de forma rapida y sencilla ejecutando el comando
+
+```
+python manage.py startapp name
+```
+
+En este ejemplo creamos un app llamada **posts**, el cual genero una carpeta con todos los archivos basicos necesarios
+
+<div align="center">
+    <img src="./readme_img/app_posts.png"
+      width="60%"
+    alt="numbers">
+</div>
+
+Para desplegar una vista de esta aplicacion vamos al archivo *./posts/views.py* donde crearemos una vista a traves de la funcion **list_posts()**
+
+```py
+from django.shortcuts import render
+from django.http import HttpResponse
+
+def list_posts(request):
+    posts = [1, 2, 3, 4]
+    return HttpResponse(str(posts))
+```
+
+Luego vamos al archivo settings de nuestro proyecto, en este caso *./photogram/settings.py* donde incorporaremos en la variable **INSTALLED_APPS** nuestra nueva app
+
+```py
+INSTALLED_APPS = [
+    # Django apps
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+
+    # Local apps
+    'posts',
+]
+```
+
+Ahora nos toca asignar un path para nuestra vista **list_posts()**. Para eso vamos al archivo **urls.py** de nuestro proyecto, en este caso *./photogram/urls.py* e importamos nuestra nueva app, y le asignamos un path a nuestra vista.
+
+Para que no existan conflictos al llamar views vamos asignar un **alias** para las views de cada aplicacion.
+
+```py
+from django.contrib import admin
+from django.urls import path
+from photogram import views as local_views
+
+# Importamos las vistas de nuestra aplicacion posts
+from posts import views as posts_views
+
+urlpatterns = [
+    
+    path('hello-world/', local_views.hello_world),
+    path('numbers/', local_views.numbers),
+    path('hi/<str:name>/<int:age>/', local_views.say_hi),
+
+    # Asignamos el path para nuestra vista list_posts
+    path('posts/', posts_views.list_posts),
+
+]
+```
+
+Ahora vamos a [**http://localhost:8000/posts/**](http://localhost:8000/posts/) para ver nuestro resultado
+
+<div align="center">
+    <img src="./readme_img/posts.png"
+      width="80%"
+    alt="numbers">
+</div>
