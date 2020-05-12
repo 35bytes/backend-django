@@ -348,7 +348,7 @@ Para crear nuestros templates lo que haremos es dentro de nuestra aplicacion **c
 
 Dentro de nuestro archivo **feed.html** solo escribiremos:
 
-```py
+```html
 Hola, mundo!
 ```
 
@@ -396,3 +396,125 @@ TEMPLATES = [
 ```
 
 En **APP_DIRS** lo tenemos definido como **True**, esto significa que las aplicaciones buscaran los templates dentro de sus directorios, de esta forma funciona sin tener que nombrar la dirección de nuestro template.
+
+## Pasando datos a nuestro template
+
+Primero crearemos un diccionario de datos dentro de nuestra vista (solo a modo de ejemplo) y enviaremos al template estos datos a traves del render. En nuestro caso este diccionario sera posts
+
+```py
+# Django
+from django.shortcuts import render
+
+# Utilities
+from datetime import datetime
+
+posts = [
+    {
+        'title': 'Mont Blanc',
+        'user': {
+            'name': 'Yésica Cortés',
+            'picture': 'https://picsum.photos/60/60/?image=1027'
+        },
+        'timestamp': datetime.now().strftime('%b %dth, %Y - %H:%M hrs'),
+        'photo': 'https://picsum.photos/800/600?image=1036',
+    },
+    {
+        'title': 'Via Láctea',
+        'user': {
+            'name': 'Christian Van der Henst',
+            'picture': 'https://picsum.photos/60/60/?image=1005'
+        },
+        'timestamp': datetime.now().strftime('%b %dth, %Y - %H:%M hrs'),
+        'photo': 'https://picsum.photos/800/800/?image=903',
+    },
+    {
+        'title': 'Nuevo auditorio',
+        'user': {
+            'name': 'Uriel (thespianartist)',
+            'picture': 'https://picsum.photos/60/60/?image=883'
+        },
+        'timestamp': datetime.now().strftime('%b %dth, %Y - %H:%M hrs'),
+        'photo': 'https://picsum.photos/500/700/?image=1076',
+    }
+]
+
+def list_posts(request):
+    """List existing posts."""
+    return render(request, 'feed.html', {'posts': posts})
+```
+
+Si logran observar enviamos los datos a traves de **{'posts': posts}**, el cual el **primer parametro sera el nombre de la variable** al momento de enviar al template, y el **segundo es el valor asignado**.
+
+En nuestro template _feed.html_ ahora imprimiremos nuestro diccionario escribiendo el **nombre de la variable**.
+
+```html
+{{ posts }}
+```
+
+Si revisamos [**http://localhost:8000/posts/**](http://localhost:8000/posts/) veremos nuestro diccionario.
+
+<div align="center">
+    <img src="./readme_img/posts_diccionario.png"
+      width="80%"
+    alt="numbers">
+</div>
+
+Ahora juguemos un poco con la **lógica de programación** y **html**. Vamos a imprimir solo los títulos. Para eso en nuestro **template** _feed.html_ escribiremos:
+
+```html
+{% for post in posts %}
+  <p>{{ post.title }}</p>
+{% endfor %}
+```
+
+Y el resultado en [**http://localhost:8000/posts/**](http://localhost:8000/posts/)
+
+<div align="center">
+    <img src="./readme_img/posts_diccionario_titulos.png"
+      width="80%"
+    alt="numbers">
+</div>
+
+Para ver toda la **lógica de programación** que podemos crear en el template system te recomiendo ir a la [documentación de Django.](https://docs.djangoproject.com/en/3.0/ref/templates/builtins/)
+
+Ahora despleguemos los datos de nuestro diccionario y estilemos con **Bootstrap** nuestro template _feed.html_.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Platzigram</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+</head>
+<body>
+  <br><br>
+  <div class="container">
+    <div class="row">
+      {% for post in posts %}
+      <div class="col-lg-4 offset-lg-4">
+        <div class="media">
+          <img class="mr-3 rounded-circle" src="{{ post.user.picture }}" alt="{{ post.user.name }}">
+          <div class="media-body">
+            <h5 class="mt-0">{{ post.user.name }}</h5>
+            {{ post.timestamp }}
+          </div>
+        </div>
+        <img class="img-fluid mt-3 border rounded" src="{{ post.photo }}" alt="{{ post.title }}">
+        <h6 class="ml-1 mt-1">{{ post.title }}</h6>
+      </div>
+      {% endfor %}
+    </div>
+    </div>
+</body>
+</html>
+
+```
+
+Y en [**http://localhost:8000/posts/**](http://localhost:8000/posts/) veremos
+:
+<div align="center">
+    <img src="./readme_img/estilado.gif"
+      width="40%"
+    alt="numbers">
+</div>
