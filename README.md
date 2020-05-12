@@ -145,7 +145,7 @@ Es buena practica tener las vistas separadas del archivo url.py, por lo que crea
 
 <div align="center">
   <img src="./readme_img/views.png"
-    width="60%"
+    width="40%"
    alt="hello-world-capture">
 </div>
 
@@ -270,7 +270,7 @@ En este ejemplo creamos un app llamada **posts**, el cual genero una carpeta con
 
 <div align="center">
     <img src="./readme_img/app_posts.png"
-      width="60%"
+      width="40%"
     alt="numbers">
 </div>
 
@@ -333,3 +333,66 @@ Ahora vamos a [**http://localhost:8000/posts/**](http://localhost:8000/posts/) p
       width="80%"
     alt="numbers">
 </div>
+
+## Template system
+
+El template system es una manera de mostrar los datos usando HTML, incluye lógica de programacion lo cual nos facilita un poco el crear nuestros templates.
+
+Para crear nuestros templates lo que haremos es dentro de nuestra aplicacion **crear una carpeta templates** y un **archivo html** con el nombre de nuestro template, en este caso _feed.html_
+
+<div align="center">
+    <img src="./readme_img/template_feed.png"
+      width="40%"
+    alt="numbers">
+</div>
+
+Dentro de nuestro archivo **feed.html** solo escribiremos:
+
+```py
+Hola, mundo!
+```
+
+Y dentro de **views.py** de nuestra aplicación ya no es necesario el HttpResponse, por que borramos su importación. A través de la función que devolvemos nuestra vista devolveremos nuestro nuevo template con el metodo **render**, que le pasaremos la request y la vista:
+
+```py
+from django.shortcuts import render
+
+def list_posts(request):
+    return render(request, 'feed.html')
+```
+
+Si revisamos el path [**http://localhost:8000/posts/**](http://localhost:8000/posts/) tendremos nuestro "Hola, mundo!"
+
+<div align="center">
+    <img src="./readme_img/post_hola_mundo.png"
+      width="80%"
+    alt="numbers">
+</div>
+
+¿Como logro funcionar si dentro de render jamas definimos la ruta donde buscar nuestro template? (en nuetro caso solo _feed.html_). Si revisamos en el archivo **settings.py** de nuestro proyecto, en la definicion de **TEMPLATES** veremos
+
+```py
+
+...
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+...
+
+```
+
+En **APP_DIRS** lo tenemos definido como **True**, esto significa que las aplicaciones buscaran los templates dentro de sus directorios, de esta forma funciona sin tener que nombrar la dirección de nuestro template.
