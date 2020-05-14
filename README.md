@@ -518,3 +518,13 @@ Y en [**http://localhost:8000/posts/**](http://localhost:8000/posts/) veremos
       width="40%"
     alt="numbers">
 </div>
+
+## Creacion de Super Usuario
+
+Para crear un **super usuario** en Django es bastante facil. En la consola escribimos
+
+```
+python3 manage.py createsuperuser
+```
+
+Nos preguntara un **username, email (opcional), y contrañesa**, con esto ya tendriamos nuestro super usuario.
