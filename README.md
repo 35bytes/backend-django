@@ -528,3 +528,25 @@ python3 manage.py createsuperuser
 ```
 
 Nos preguntara un **username, email (opcional), y contrañesa**, con esto ya tendriamos nuestro super usuario.
+
+## Dashboard de Administración
+
+Django cuenta con un dashboard de administración. Para acceder a el debemos darle un path dentro del archivo **urls.py** de nuestro proyecto. Para esto importamos **django.contrib.admin** y le asignamos la dirección que deseamos
+
+```py
+from django.contrib import admin
+from django.urls import path
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+```
+
+En este caso le dimos el path **/admin/** para acceder a el. Entonces vamos a la dirección [**http://localhost:8000/admin/**](http://localhost:8000/admin/) para ingresar.
+
+<div align="center">
+    <img src="./readme_img/dashboard_login.png"
+      width="60%"
+    alt="numbers">
+</div>
+
+Para ingresar utilizaremos el **super usuario** que creamos en la [**sección de creación de super usuario.**](#creacion-de-super-usuario)
