@@ -550,3 +550,40 @@ En este caso le dimos el path **/admin/** para acceder a el. Entonces vamos a la
 </div>
 
 Para ingresar utilizaremos el **super usuario** que creamos en la [**sección de creación de super usuario.**](#creacion-de-super-usuario)
+
+## Implementación de modelos
+
+Con Django podemos crear modelos de clases de nuestra aplicación.
+
+Para estos ejemplos crearemos una nueva aplicacion de usuarios en nuestro proyecto.
+
+```
+python manage.py startapp users
+```
+
+En el archivo **models.py** de la nueva aplicación crearemos el modelo de nuestros usuarios, el cual sera una clase _Profile_, y los tipos de valores para la clase _models_ estan definidos en la [documentación.](https://docs.djangoproject.com/en/3.0/ref/models/fields/)
+
+```py
+from django.contrib.auth.models import User
+from django.db import models
+
+class Profile(models.Model):
+
+  user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+  website = models.URLField(max_length=200, blank=True)
+  biography = models.TextField(blank=True)
+  phone_number = models.CharField(max_length=20, blank=True)
+
+  picture = models.ImageField(
+    upload_to='users/pictures', 
+    blank=True, 
+    null=True
+  )
+
+  created = models.DateTimeField(auto_now_add=True)
+  modified = models.DateTimeField(auto_now=True)
+
+  def __str__(self):
+    return self.user.username
+```
