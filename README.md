@@ -563,6 +563,14 @@ python manage.py startapp users
 
 En el archivo **models.py** de la nueva aplicación crearemos el modelo de nuestros usuarios, el cual sera una clase _Profile_, y los tipos de valores para la clase _models_ estan definidos en la [documentación.](https://docs.djangoproject.com/en/3.0/ref/models/fields/)
 
+Para poder cargar las referencias de imagenes en neustro modelo instalaremos en nuestro ambiente Pillow, esto nos servira para la siguiente sección.
+
+```
+pip install pillow
+```
+
+Ahora creamos el modelo de usuarios.
+
 ```py
 from django.contrib.auth.models import User
 from django.db import models
@@ -586,4 +594,18 @@ class Profile(models.Model):
 
   def __str__(self):
     return self.user.username
+```
+
+## Implementar modelos en base de datos
+
+Los modelos creados en nuestras aplicaciones podemos aplicarlos en el esquema de nuestra base de datos. Primero debemos auditar los cambios en los modelos con:
+
+```
+python manage.py makemigration
+```
+
+Ahora aplicaremos los cambios auditados en nuestra base de datos.
+
+```
+python manage.py migrate
 ```
