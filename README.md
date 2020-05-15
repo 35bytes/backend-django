@@ -8,6 +8,34 @@
    alt="hello-world-capture">
 </div>
 
+# Tabla de contenido
+- [Preparando entorno](#Preparando-entorno)
+  - [Configuración de entorno de trabajo](##configuración-de-entorno-de-trabajo)
+  - [Creacion de entorno virtual con Python](##Creacion-de-entorno-virtual-con-Python)
+  - [Comandos del entorno](##Comandos-del-entorno)
+  - [Instalación de Django](##Instalación-de-Django)
+  - [Django Admin](##Django-Admin)
+  - [Creación de proyecto](##Creación-de-proyecto)
+  - [Exploración de los archivos](##Exploración-de-los-archivos)
+    - [settings.py](#Archivo-settings.py)
+    - [manage.py](#Archivo-manage.py)
+  - [Levantar servicio](#Levantar-servicio)
+- [Vistas](#Vistas)
+  - [Crear la primera vista](##Crear-la-primera-vista)
+  - [Como Django procesa un request](##Como-Django-procesa-un-request)
+  - [Separando las vistas](##Separando-las-vistas)
+  - [El objeto Request](##El-objeto-Request)
+  - [Pasando argumentos por URL](##Pasando-argumentos-por-URL)
+  - [Crear una app](##Crear-una-app)
+  - [Template system](##Template-system)
+  - [Pasando datos a nuestro template](##Pasando-datos-a-nuestro-template)
+- [Modelos](#Modelos)
+  - [Dashboard de Administración](##Dashboard-de-Administración)
+  - [Implementación de modelos](##Implementación-de-modelos)
+  - [Implementar modelos en base de datos](##Implementar-modelos-en-base-de-datos)
+
+# Preparando entorno
+
 ## Configuración de entorno de trabajo
 Primero debemos tener instalado Python. Luego de la instalacion abrimos la terminal y nos posicionamos en la ruta que deseamos establecer nuestro proyecto.
 
@@ -54,14 +82,14 @@ Es una interfaz instalada junto con Django que contiene subcomandos que utiles. 
 django-admin
 ```
 
-## Creacion de proyecto
+## Creación de proyecto
 Para **crear** un proyecto ejecutamos
 
 ```
 django-admin startproject name
 ```
 
-## Exploracion de los archivos
+## Exploración de los archivos
 Lo primero que veremos es un folder con el nombre de nuestro proyecto, el cual contiene los archivos:
 
 - **\_\_init_\_.py:** la unica finalidad de este archivo es declarar nuestra carpeta como un modulo de python.
@@ -69,7 +97,8 @@ Lo primero que veremos es un folder con el nombre de nuestro proyecto, el cual c
 - **urls.py:** es el archivo de punto de entrada para todas las peticiones a nuestro proyecto.
 - **wsgi.py:** es usado para el deployment a produccion y es la interfaz WSGI cuando el servidor corre en producción.
 - **manage.py:** es un archivo que no tocamos, pero interactuamos con el durante todo el desarrollo.
-## Archivo settings.py
+
+### Archivo settings.py
 Dentro del archivo setting podemos encontrar variables relevantes para nuestro proyecto, las cuales son:
 - **BASE_DIR:** Declara el lugar donde esta corriendo el proyecto. Se considera la linea mas importante.
 - **SECRET_KEY:** Es utilizado para el hashing de las contraseñas y las sesiones que se almacenan en las bases de datos.
@@ -85,7 +114,8 @@ Dentro del archivo setting podemos encontrar variables relevantes para nuestro p
 - **LANGUAGE_CODE:** El idioma en el que se interactua con nuestra aplicación.
 - **TIME_ZONE:** Zona horaria en el cual corre nuestra aplicación.
 - **STATIC_URL:** En lugar de resolver la url establecidas en el archivo de urls, va a buscar resolver el archivo estático con la url estalecida en esta variable.
-## Archivo manage.py
+
+### Archivo manage.py
 Este archivo contiene un gran listado de subcomandos los cuales podemos listar con:
 
 ```
@@ -99,6 +129,8 @@ Para levantar el servicio ejecutamos:
 python manage.py runserver
 ```
 
+# Vistas
+
 ## Crear la primera vista
 Para este ejercicio lo haremos simple. En el archivo **urls.py** importamos **django.http.HttpResponse** y definimos una **funcion** que devuelva una respuesta (en este caso hello_world), y establemos en que path estara esta despuesta:
 
@@ -108,10 +140,10 @@ from django.urls import path
 from django.http import HttpResponse
 
 def hello_world(request):
-    return HttpResponse('Hello, world!')
+  return HttpResponse('Hello, world!')
 
 urlpatterns = [
-    path('hello-world/', hello_world)
+  path('hello-world/', hello_world)
 ]
 ```
 
@@ -180,9 +212,9 @@ A traves del objeto request podemos acceder a varios atributos  los cuales se en
 
   ```py
   if request.method == 'GET':
-      do_something()
+    do_something()
   elif request.method == 'POST':
-      do_something_else()
+    do_something_else()
   ```
 
 - **request.GET:** Un diccionario que contiene todos los parametros entregados por HTTP GET. Por ejemplo:
@@ -223,12 +255,12 @@ Podemos pasar argumentos a traves de la URL, para esto primero creamos la funcio
 from django.http import HttpResponse
 
 def say_hi(request, name, age):
-    if age < 12:
-        message = 'Sorry {}, you are not allowed here'.format(name)
-    else:
-        message = 'Hello {}! Welcome to Photogram'.format(name)
+  if age < 12:
+    message = 'Sorry {}, you are not allowed here'.format(name)
+  else:
+    message = 'Hello {}! Welcome to Photogram'.format(name)
     
-    return HttpResponse(message)
+  return HttpResponse(message)
 ```
 
 Luego definimos el path para esta vista en el archivo **urls.py**. Para definir los parametros que pasaran por la url los encerramos con "<>" definiendo el tipo de dato y el nombre del parametro.
@@ -239,7 +271,7 @@ from django.urls import path
 from photogram import views
 
 urlpatterns = [
-    path('hi/<str:name>/<int:age>/', views.say_hi)
+  path('hi/<str:name>/<int:age>/', views.say_hi)
 ]
 ```
 
@@ -281,8 +313,8 @@ from django.shortcuts import render
 from django.http import HttpResponse
 
 def list_posts(request):
-    posts = [1, 2, 3, 4]
-    return HttpResponse(str(posts))
+  posts = [1, 2, 3, 4]
+  return HttpResponse(str(posts))
 ```
 
 Luego vamos al archivo settings de nuestro proyecto, en este caso *./photogram/settings.py* donde incorporaremos en la variable **INSTALLED_APPS** nuestra nueva app
@@ -529,6 +561,8 @@ python3 manage.py createsuperuser
 
 Nos preguntara un **username, email (opcional), y contrañesa**, con esto ya tendriamos nuestro super usuario.
 
+# Modelos
+
 ## Dashboard de Administración
 
 Django cuenta con un dashboard de administración. Para acceder a el debemos darle un path dentro del archivo **urls.py** de nuestro proyecto. Para esto importamos **django.contrib.admin** y le asignamos la dirección que deseamos
@@ -538,7 +572,7 @@ from django.contrib import admin
 from django.urls import path
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+  path('admin/', admin.site.urls),
 ```
 
 En este caso le dimos el path **/admin/** para acceder a el. Entonces vamos a la dirección [**http://localhost:8000/admin/**](http://localhost:8000/admin/) para ingresar.
