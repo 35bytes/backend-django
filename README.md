@@ -731,4 +731,4 @@ class ProfileAdmin(admin.ModelAdmin): #Por convencion la clase que creemos debe 
   >
 </div>
 
-Para mas opciones de personalización siempre puedes revisar la [documentación](https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#modeladmin-options)
+Para mas opciones de personalización siempre puedes revisar la [documentación.](https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#modeladmin-options)
