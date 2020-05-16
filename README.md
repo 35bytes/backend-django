@@ -35,7 +35,8 @@
   - [Implementar modelos en base de datos](#Implementar-modelos-en-base-de-datos)
   - [Reflejar modelos en dashboard de administración](#Reflejar-modelos-en-dashboard-de-administración)
   - [Dashboard administrativo personalizado](#Dashboard-administrativo-personalizado)
-  - [Personalizando Auth Dashboard](#Personalizando-Auth-Dashboard)
+  - [Personalizando detalle de registro de modelo](#Personalizando-detalle-de-registro-de-modelo)
+  - [Personalizando Dashboards Nativos](#Personalizando-Dashboards-Nativos)
 
 # Preparando entorno
 
@@ -734,7 +735,7 @@ class ProfileAdmin(admin.ModelAdmin): #Por convencion la clase que creemos debe 
 
 Para mas opciones de personalización siempre puedes revisar la [documentación.](https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#modeladmin-options)
 
-## Personalizando detalle de registro
+## Personalizando detalle de registro de modelo
 
 Podemos perzonalizar nuestros dashbord del registro. En nuestro caso lo haremos para el modelo de usuarios _Profile_.
 
