@@ -33,6 +33,7 @@
   - [Dashboard de Administración](#Dashboard-de-Administración)
   - [Implementación de modelos](#Implementación-de-modelos)
   - [Implementar modelos en base de datos](#Implementar-modelos-en-base-de-datos)
+  - [Reflejar modelos en dashboard de administración](#Reflejar-modelos-en-dashboard-de-administración)
 
 # Preparando entorno
 
@@ -643,3 +644,39 @@ Ahora aplicaremos los cambios auditados en nuestra base de datos.
 ```
 python manage.py migrate
 ```
+
+## Reflejar modelos en dashboard de administración
+
+En primera instancia no podremos ver los _modelos_ que creamos en el dashboard de administración. La clase **ModelAdmin** es la representacion del modelo en la interfaz de administración. Para reflejarlo debemos almacenar el _modelo_ en el archivo **admin.py** de nuestra aplicación.
+
+```py
+# Django
+from django.contrib import admin
+
+# Modelos
+from users.models import Profile
+
+# Registramos nuestros modelos aquí.
+admin.site.register(Profile)
+```
+
+De esta forma tendremos la interfaz de administración predeterminada, en nuestro caso incluimos el modelo **Profile**.
+
+<div align="center">
+  <img 
+    src="./readme_img/dashboard_menu.png"
+    width="60%"
+  >
+</div>
+<div align="center">
+  <img 
+    src="./readme_img/dashboard_users_list.png"
+    width="60%"
+  >
+</div>
+<div align="center">
+  <img 
+    src="./readme_img/dashboard_users_add.png"
+    width="60%"
+  >
+</div>
