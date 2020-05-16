@@ -35,6 +35,7 @@
   - [Implementar modelos en base de datos](#Implementar-modelos-en-base-de-datos)
   - [Reflejar modelos en dashboard de administración](#Reflejar-modelos-en-dashboard-de-administración)
   - [Dashboard administrativo personalizado](#Dashboard-administrativo-personalizado)
+  - [Personalizando Auth Dashboard](#Personalizando-Auth-Dashboard)
 
 # Preparando entorno
 
@@ -732,3 +733,63 @@ class ProfileAdmin(admin.ModelAdmin): #Por convencion la clase que creemos debe 
 </div>
 
 Para mas opciones de personalización siempre puedes revisar la [documentación.](https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#modeladmin-options)
+
+## Personalizando detalle de registro
+
+Podemos perzonalizar nuestros dashbord del registro. En nuestro caso lo haremos para el modelo de usuarios _Profile_.
+
+```py
+# Django
+from django.contrib import admin
+
+# Models
+from users.models import Profile
+
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+  list_display = ('pk', 'user', 'phone_number', 'website', 'picture')
+  list_display_links = ('pk', 'user',)
+  list_editable = ('phone_number', 'website', 'picture')
+  search_fields = (
+    'user__email',
+    'user__username', 
+    'user__first_name', 
+    'user__last_name', 
+    'phone_number'
+  )
+  list_filter = (
+    'user__is_active',
+    'user__is_staff',
+    'created', 
+    'modified'
+  )
+
+  # Nos desplagara los datos que deseamos. Es importante que la información este en tuplas.
+  fieldsets= (
+    ('Profile', { # Nombre de la sección.
+      'fields': ( # Los campos que visualizaremos.
+        ('user', 'picture'), # Cuando ponemos varios campos en la misma posición dentro de la tupla de field vamos a desplegar los datos en la misma fila.
+      ),
+    }),
+    ('Extra info', {
+      'fields': ( # En este caso la información se desplegara en 2 filas ya que la tupla de fields tiene 2 posiciones.
+        ('website', 'phone_number'),
+        ('biography',),
+      ),
+    }),
+    ('Metadata', {
+      'fields': (
+        ('created', 'modified'), # Estos datos no se pueden modificar, por lo que haremos uso de readonly_fields.
+      ),
+    }),
+  )
+
+  # Aqui declararemos los campos que solo pueden ser leidos pero no modificados.
+  readonly_fields = ('created', 'modified',)
+```
+<div align="center">
+  <img 
+    src="./readme_img/detalle_personalizado.png"
+    width="100%"
+  >
+</div>
