@@ -38,6 +38,7 @@
   - [Personalizando detalle de registro de modelo](#Personalizando-detalle-de-registro-de-modelo)
   - [Personalizando Dashboards Nativos](#Personalizando-Dashboards-Nativos)
   - [Relacionando modelos](#Relacionando-modelos)
+  - [¿Como hacer funcionar los links?](#¿Como-hacer-funcionar-los-links?)
 
 # Preparando entorno
 
@@ -918,3 +919,42 @@ class Post(models.Model):
   def __str__(self):
     return '{} by @{}'.format(self.title, self.user.username)
 ```
+
+## ¿Como hacer funcionar los links?
+
+¿Te fijaste que los links de los campos de nuestros registros nos llevaba al detalle de estos? Para que estos links nos lleven realmente a sus referencias debemos realizar algunos cambios en el archivo **urls.py** y **settings.py**.
+
+En nuestro archivo **settings.py** declararemos 2 variables en el fondo del archivo.
+
+```py
+...
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+```
+
+Luego iremos al archivo **urls.py** y a _urlpatterns_ donde tenemos definidos los path de nuestras aplicaciones vamos a concatenar un valor static
+
+```py
+from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
+from django.urls import path
+
+from photogram import views as local_views
+from posts import views as posts_views
+
+urlpatterns = [
+
+    path('admin/', admin.site.urls),
+    
+    path('hello-world/', local_views.hello_world),
+    path('numbers/', local_views.numbers),
+    path('hi/<str:name>/<int:age>/', local_views.say_hi),
+
+    path('posts/', posts_views.list_posts),
+
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) # concatenamos static con los valores definidos en settings.py
+```
+
+Con esto estaría todo listo para que los valores definidos como links en los dashboard funcionen correctamente.
