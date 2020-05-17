@@ -38,7 +38,7 @@
   - [Personalizando detalle de registro de modelo](#Personalizando-detalle-de-registro-de-modelo)
   - [Personalizando Dashboards Nativos](#Personalizando-Dashboards-Nativos)
   - [Relacionando modelos](#Relacionando-modelos)
-  - [¿Como hacer funcionar los links?](#¿Como-hacer-funcionar-los-links?)
+  - [Hacer funcionar los links](#Hacer-funcionar-los-links)
 
 # Preparando entorno
 
@@ -920,7 +920,7 @@ class Post(models.Model):
     return '{} by @{}'.format(self.title, self.user.username)
 ```
 
-## ¿Como hacer funcionar los links?
+## Hacer funcionar los links
 
 ¿Te fijaste que los links de los campos de nuestros registros nos llevaba al detalle de estos? Para que estos links nos lleven realmente a sus referencias debemos realizar algunos cambios en el archivo **urls.py** y **settings.py**.
 
