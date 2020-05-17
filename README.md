@@ -39,6 +39,9 @@
   - [Personalizando Dashboards Nativos](#Personalizando-Dashboards-Nativos)
   - [Relacionando modelos](#Relacionando-modelos)
   - [Hacer funcionar los links](#Hacer-funcionar-los-links)
+- [Templates, auth y middlewares](#Templates,-auth-y-middlewares)
+  - [Archivos estáticos](##Archivos-estáticos)
+  - [Templates](#Templates)
 
 # Preparando entorno
 
@@ -958,3 +961,194 @@ urlpatterns = [
 ```
 
 Con esto estaría todo listo para que los valores definidos como links en los dashboard funcionen correctamente.
+
+# Templates, auth y middlewares
+
+## Archivos estáticos
+
+Los archivos estáticos son elementos de nuestro proyecto que podremos usar de forma transversal. Técnicamente podemos usar tipo de elemento como estético pero por lo general se hacen uso de **css** e **imágenes.**
+
+En la raíz de nuestro proyecto crearemos una carpeta llamada _static_, y en ella contendra otras 2 carpetas llamadas _css_ y _img_. Estas van a contener nuestros archivos **css** e **imagenes** respectivamente.
+
+<div align="center">
+  <img 
+    src="./readme_img/static_folder.png"
+    width="40%"
+  >
+</div>
+
+Ahora vamos al archivo _settings.py_ de nuestro proyecto. Justo debajo de la variable **STATIC_URL** vamos a pegar las variables de **STATICFILES_DIRS** y **STATICFILES_FINDERS**.
+
+```py
+...
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
+
+...
+```
+
+Con esto tus archivos estáticos ya pueden ser referenciados.
+
+## Templates
+
+Los templates de nuestro proyecto tienen la capacidad de **extenderse** desde otros templates, asi podremos reutilizar los elementos que deseamos, como por ejemplo un _navbar_.
+
+Para preparar todo iremos al archivo _settings.py_, y en la variable **TEMPLATES** vamos a definir donde buscar los **templates** para nuestro proyecto.
+
+```py
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            # Aqui definimos la carpeta donde ira a buscar el template nuestras aplicaciones.
+            os.path.join(BASE_DIR, 'templates'),
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+```
+
+Ln la **raíz** de nuestro proyecto crearemos la carpeta _templates_ definido anteriormente y dentro de este crearemos todos los elementos compartidos, como por ejemplo un **navbar, base, etc.** Para los templates **no compartidos** que deseamos agregar vamos a crear **carpetas** de estos elementos. Para nuestro ejemplo vamos a crear los templates compartidos de **base** y **navbar**, y para los elementos particulares crearemos las carpetas **posts** y **users**, con los archivos _feed.html_ y _base.html_ respectivamente.
+
+<div align="center">
+  <img 
+    src="./readme_img/templates.png"
+    width="40%"
+  >
+</div>
+
+Primero vamos a crear nuestro navbar en el archivo _templates/**nav.html**_ y haremos referencias a nuestros **archivos estáticos** creados en la [sección anterior.](#Archivos-estáticos)
+
+```html
+<!-- Cargamos las refenrencias a los dir static -->
+{% load static %}
+<nav class="navbar navbar-expand-lg fixed-top" id="main-navbar">
+  <div class="container">
+
+    <a class="navbar-brand pr-5" style="border-right: 1px solid #efefef;" href="">
+      <!-- Vamos a referenciar a la imagen de instagram en statics -->
+      <img src="{% static 'img/instagram.png' %}" height="45" class="d-inline-block align-top"/>
+    </a>
+
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav mr-auto">
+
+        <li class="nav-item">
+          <a href="">
+            <!-- Aqui referenciamos otra imagen -->
+            <img src="{% static 'img/default-profile.png' %}" height="35" class="d-inline-block align-top rounded-circle"/>
+          </a>
+        </li>
+
+        <li class="nav-item nav-icon">
+          <a href="">
+            <i class="fas fa-plus"></i>
+          </a>
+        </li>
+
+        <li class="nav-item nav-icon">
+          <a href="">
+            <i class="fas fa-sign-out-alt"></i>
+          </a>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+</nav>
+```
+
+Sin embargo nuestro **navbar** aun no aparecera en nuestra aplicación. Para esto crearemos el archivo _templates/**base.html**_ y como lo hicimos en el archivo anterior vamos a cargar los **archivos estáticos.** Pero no nos detengamos ahí, tambien definamos el **bloque del head** y el **container que desplegara los templates** que se extenderan.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- Definimos el bloque head_content donde nuestros templates definiran su valor -->
+  {% block head_content %}{% endblock %}
+
+  <!-- Cargamos las referencias a los archivos estáticos -->
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" crossorigin="anonymous" />
+  <link rel="stylesheet" href="{% static 'css/main.css' %}" />
+
+</head>
+<body>
+  <!-- Incluimos el template de navbar que creamos anteriormente -->
+  {% include "nav.html" %}
+
+  <div class="container mt-5">
+    <!-- Creamos el bloque donde se desplegaran los templates de nuestra aplicacion -->
+    {% block container %}
+    {% endblock%}
+  </div>
+
+</body>
+</html>
+```
+
+Con esto ya desplegamos nuestro template **navbar** dentro de **base**, pero no nos detengamos ahí. Vamos a crear el template para **posts** que se **extendera** del archivo _templates/base.html_, el cual sera _templates/posts/**feed.html**_
+
+```html
+<!-- Extendemos este template de nuestro archivo templates/base.html -->
+{% extends "base.html" %}
+
+<!-- Definimos el contenido del head en el bloque head_content -->
+{% block head_content %}
+<title>Platzigram feed</title>
+{% endblock %}
+
+<!-- Desplegamos el contenido de nuestro template en el bloque container definido del archivo que se extiende -->
+{% block container %}
+  <div class="row">
+    {% for post in posts %}
+    <div class="col-lg-4 offset-lg-4">
+      <div class="media">
+        <img class="mr-3 rounded-circle" src="{{ post.user.picture }}" alt="{{ post.user.name }}">
+        <div class="media-body">
+          <h5 class="mt-0">{{ post.user.name }}</h5>
+          {{ post.timestamp }}
+        </div>
+      </div>
+      <img class="img-fluid mt-3 border rounded" src="{{ post.photo }}" alt="{{ post.title }}">
+      <h6 class="ml-1 mt-1">{{ post.title }}</h6>
+    </div>
+    {% endfor %}
+  </div>
+{% endblock %}
+```
+
+Como ahora este template esta fuera de la aplicación debemos referenciarla en el render de la vista, por lo que iremos a _posts/views.py_ a realizar los cambios. Lo referenciaremos como _**posts/feed.html**_ que hace referencia al path de _template/posts/feed.html_. **No es necesario definir la carpeta _templates_** ya que en el archivo _settings.py_ definimos que **los templates seran buscados en esta carpeta**.
+
+```py
+...
+
+def list_posts(request):
+    # En la función que nos devuelve el render, debemos referenciar correctamente el template, en este caso a posts/feed.html
+    return render(request, 'posts/feed.html', {'posts': posts})
+```
+
+Ahora si revisamos el path de la aplicación [http://localhost:8000/posts/](http://localhost:8000/posts/) veremos el template de **base**, **navbar** y **posts** desplegados correctamente, ademas del head definido en _templates/posts/feed.html_
+
+<div align="center">
+  <img 
+    src="./readme_img/posts_navbar.png"
+    width="60%"
+  >
+</div>
