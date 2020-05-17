@@ -37,6 +37,7 @@
   - [Dashboard administrativo personalizado](#Dashboard-administrativo-personalizado)
   - [Personalizando detalle de registro de modelo](#Personalizando-detalle-de-registro-de-modelo)
   - [Personalizando Dashboards Nativos](#Personalizando-Dashboards-Nativos)
+  - [Relacionando modelos](#Relacionando-modelos)
 
 # Preparando entorno
 
@@ -893,3 +894,27 @@ Y si revisamos la lista de registro **User** veremos los cambios realizados en l
 </div>
 
 En la [documentación](https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#modeladmin-options) tenemos muchas mas formas de personalización.
+
+## Relacionando modelos
+
+¿Que pasa si en nuestro proyecto un modelo depende de otro? Un ejemplo de esto puede ser un **_post_** que solo es posible que exista si esta relacionado con un **_usuario_**. Afortunadamente en Django podemos relacionar los modelos, en nuestro caso lo haremos con el modelo de **posts**, por lo iremos al archivo _posts/models.py_.
+
+```py
+# Django
+from django.db import models
+from django.contrib.auth.models import User
+
+class Post(models.Model):
+
+  user = models.ForeignKey(User, on_delete=models.CASCADE)
+  profile = models.ForeignKey('users.Profile', on_delete=models.CASCADE) # Con ForeignKey podemos relacionar el modelo de posts con profile, y para hacer referencia a la clase relacionada lo hacemos con el formato de 'aplicacion.NombreClaseDelModelo'.
+
+  title = models.CharField(max_length=255)
+  photo = models.ImageField(upload_to='post/photos')
+
+  created = models.DateTimeField(auto_now_add=True)
+  modified = models.DateTimeField(auto_now=True)
+
+  def __str__(self):
+    return '{} by @{}'.format(self.title, self.user.username)
+```
