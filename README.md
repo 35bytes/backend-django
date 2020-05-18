@@ -44,6 +44,7 @@
   - [Templates](#Templates)
   - [Login y protegiendo vistas](#Login-y-protegiendo-vistas)
   - [Logout](#Logout)
+  - [Signup](#Signup)
 
 # Preparando entorno
 
@@ -1411,3 +1412,117 @@ Y por terminar, en el **html** haremos referencia al path de 'logout'.
 ```
 
 Listo, ahora tenemos un logout funcionando perfectamente de forma sencilla.
+
+## Signup
+
+Ahora aprenderemos a registrar un usuario y guardar un instacia de nuestro modelo **Profile.**
+
+Primero crearemos un **template** para el registro, asi que creamos el archivo _template/users/**signup.html**_
+
+```html
+<!-- Archivo template/users/signup.html -->
+
+{% extends 'users/base.html' %}
+
+{% block head_content %}
+<title>Platzigram sign up</title>
+{% endblock %}
+
+{% block container %}
+
+  <!-- En caso de un error desplegaremos el mensaje aqui -->
+  {% if error %}
+    <p class="alert alert-danger">{{ error }}</p>
+  {% endif %}
+
+  <!-- Este sera el formulario de registro -->
+  <form actions="{% url 'signup' %}" method="POST">
+    <!-- No olvidar que para los formularios en Django debemos hacer uso de csrf_token -->
+    {% csrf_token %}
+
+    <div class="form-group"><input type="text" class="form-control" placeholder="Username" name="username" required="true"></div>
+    <div class="form-group"><input type="password" class="form-control" placeholder="Password" name="password" required="true"></div>
+    <div class="form-group"><input type="password" class="form-control" placeholder="Password confirmation" name="password_confirmation" required="true"></div>
+    <div class="form-group"><input type="text" class="form-control" placeholder="First name" name="first_name" required="true"></div>
+    <div class="form-group"><input type="text" class="form-control" placeholder="Last name" name="last_name" required="true"></div>
+    <div class="form-group"><input type="email" class="form-control" placeholder="Email address" name="email" required="true"></div>
+
+    <button class="btn btn-primary btn-block mt-5" type="submit">Register!</button>
+
+  </form>
+
+{% endblock %}
+```
+
+Teniendo listo nuestro **template** ahora crearemos la función que renderizara nuestra vista. Para ello iremos a _users/**views.py**_
+
+```py
+# Django
+...
+# Vamos hacer uso de render y redirect
+from django.shortcuts import render, redirect
+
+# Exceptions
+# Importamos posible error al tratar de crear una instancia con valor único que ya existe
+from django.db.utils import IntegrityError
+
+# Models
+# Importamos los modelos de las instancias que crearemos
+from django.contrib.auth.models import User
+from users.models import Profile
+
+...
+
+def signup(request):
+  # Al recibir el metodo POST.
+  if request.method == 'POST':
+    username = request.POST['username']
+    password = request.POST['password']
+    password_confirmation = request.POST['password_confirmation']
+
+    # Confirmamos que las constraseñas sean iguales.
+    if password != password_confirmation:
+      # En caso de error volvemos a renderizar signup, pero enviamos el error.
+      return render(request, 'users/signup.html', {'error': 'Passwords does not match'})
+
+    try:
+      # Creamos una instancia de User
+      user = User.objects.create_user(username=username, password=password)
+    except IntegrityError:
+      # En caso que username (nuestro valor unico) ya exista renderizara
+      # nuevamente signup pero enviando el error.
+      return render(request, 'users/signup.html', {'error': 'Username is already exist'})
+    # Ya creada la instancia le pasamos los siguientes valores.
+    user.first_name = request.POST['first_name']
+    user.last_name = request.POST['last_name']
+    user.email = request.POST['email']
+    # Lo guardamos en nuestra base de datos.
+    user.save()
+
+    # Creamos nuestra instacia de Profile a traves de user.
+    profile = Profile(user=user)
+    # Lo guardamos en la base de datos.
+    profile.save()
+
+    # Nos redirigimos a login para iniciar sesion con el nuevo usuario.
+    return redirect('login')
+
+  return render(request, 'users/signup.html')
+
+...
+```
+
+Ahora nos faltaría solo asignar un path a nuestro signup, lo configuraremos en _urls.py_
+
+```py
+...
+
+urlpatterns = [
+  ...
+  
+  path('users/signup', users_views.signup, name='signup'),
+
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+...
+```
