@@ -43,6 +43,7 @@
   - [Archivos estáticos](##Archivos-estáticos)
   - [Templates](#Templates)
   - [Login y protegiendo vistas](#Login-y-protegiendo-vistas)
+  - [Logout](#Logout)
 
 # Preparando entorno
 
@@ -1347,3 +1348,66 @@ Y segundo con un usario **registrado**.
     width="80%"
   >
 </div>
+
+# Logout
+
+El proceso de **logout** es bastante sencillo en Django. Primero iremos a las vistas de nuestro aplicativo y crearemos una función para ello.
+
+```py
+# Archivo users/views.py
+# Django
+# Importamos logout.
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+
+def login_view(request):
+  if request.method == 'POST':
+    username = request.POST['username']
+    password = request.POST['password']
+    user = authenticate(request, username=username, password=password)
+    if user:
+      login(request, user)
+      return redirect('feed')
+    else:
+      return render(request, 'users/login.html', {'error': 'Invalid username and password'})
+  return render(request, 'users/login.html')
+
+# Creamos la funcion logout_view, y lo decoramos con
+# login_required, asi solo se ejecutara si existe una sesión.
+@login_required
+def logout_view(request):
+  logout(request) # Ejecutamos logout, el cual borrara los tokens del navegador.
+  return redirect('login') # Redirigimos a path de login.
+```
+
+Luego de ello iremos a las _urls.py_ de nuestro proyecto.
+
+```py
+
+...
+
+urlpatterns = [
+  ...
+  # Creamos el path de logout.
+  path('users/logout', users_views.logout_view, name='logout'),
+
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+```
+
+Y por terminar, en el **html** haremos referencia al path de 'logout'.
+
+```html
+<!-- templates/nav.html -->
+{% load static %}
+...
+        <li class="nav-item nav-icon">
+          # Hacemos referencia al path de 'logout' en nuestro elemento.
+          <a href="{% url 'logout' %}">
+            <i class="fas fa-sign-out-alt"></i>
+          </a>
+        </li>
+...
+```
+
+Listo, ahora tenemos un logout funcionando perfectamente de forma sencilla.

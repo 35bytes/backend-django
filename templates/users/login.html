@@ -9,15 +9,20 @@
 <form method="POST" action="{% url 'login' %}">
 
   {% if error %}
-    <p style="color: red;">{{ error }}</p>
+  <p class="alert alert-danger">{{ error }}</p>
   {% endif %}
 
   {% csrf_token %}
+  
+  <div class="form-group">
+    <input class="form-control" type="text" placeholder="Username" name="username">
+  </div>
 
-  <input type="text" placeholder="Username" name="username" />
-  <input type="password" placeholder="Password" name="password" />
+  <div class="form-group">
+    <input class="form-control" type="password" placeholder="Password" name="password">
+  </div>
 
-  <button type="submit">Sign in!</button>
+  <button class="btn btn-primary btn-block mt-5" type="submit">Sing in!</button>
 
 </form>
 
