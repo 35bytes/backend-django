@@ -42,6 +42,7 @@
 - [Templates, auth y middlewares](#Templates,-auth-y-middlewares)
   - [Archivos estáticos](##Archivos-estáticos)
   - [Templates](#Templates)
+  - [Login y protegiendo vistas](#Login-y-protegiendo-vistas)
 
 # Preparando entorno
 
@@ -710,10 +711,12 @@ class ProfileAdmin(admin.ModelAdmin): #Por convencion la clase que creemos debe 
   # list_display_links establece como links los campos nombrados.
   list_display_links = ('pk', 'user')
 
-  # list_editable nos permite editar el campo desde la lista del modelo en vez de ingresar al detalle del registro.
+  # list_editable nos permite editar el campo desde 
+  # la lista del modelo en vez de ingresar al detalle del registro.
   list_editable = ('phone_number',)
 
-  # Para crear un buscador hacemos uso de search_fields. Los campos que se ingresan seran los que el buscador recorrera para realizar las busquedas.
+  # Para crear un buscador hacemos uso de search_fields. 
+  # Los campos que se ingresan seran los que el buscador recorrera para realizar las busquedas.
   search_fields = (
     'user__email',
     'user__username', 
@@ -722,7 +725,8 @@ class ProfileAdmin(admin.ModelAdmin): #Por convencion la clase que creemos debe 
     'phone_number'
   )
 
-  # Podemos crear un filtro para nuestro dashboard del modelo, para ello usamos list_filter, y definimos los campos con los que trabajara.
+  # Podemos crear un filtro para nuestro dashboard del modelo, 
+  # para ello usamos list_filter, y definimos los campos con los que trabajara.
   list_filter = (
     'user__is_active',
     'user__is_staff',
@@ -774,18 +778,24 @@ class ProfileAdmin(admin.ModelAdmin):
   fieldsets= (
     ('Profile', { # Nombre de la sección.
       'fields': ( # Los campos que visualizaremos.
-        ('user', 'picture'), # Cuando ponemos varios campos en la misma posición dentro de la tupla de field vamos a desplegar los datos en la misma fila.
+        # Cuando ponemos varios campos en la misma posición dentro de 
+        # la tupla de field vamos a desplegar los datos en la misma fila.
+        ('user', 'picture'), 
       ),
     }),
     ('Extra info', {
-      'fields': ( # En este caso la información se desplegara en 2 filas ya que la tupla de fields tiene 2 posiciones.
+      'fields': ( 
+        # En este caso la información se desplegara 
+        # en 2 filas ya que la tupla de fields tiene 2 posiciones.
         ('website', 'phone_number'),
         ('biography',),
       ),
     }),
     ('Metadata', {
       'fields': (
-        ('created', 'modified'), # Estos datos no se pueden modificar, por lo que haremos uso de readonly_fields.
+        # Estos datos no se pueden modificar, 
+        # por lo que haremos uso de readonly_fields.
+        ('created', 'modified'),
       ),
     }),
   )
@@ -863,7 +873,8 @@ class ProfileInline(admin.StackedInline):
   can_delete = False
   verbose_name_plural = 'profiles'
 
-# Luego para asociar los modelos e insertarlo en el Dashboard usaremos el UserAdmin de Django el cual le dimos el alias de BaseUserAdmin.
+# Luego para asociar los modelos e insertarlo en el Dashboard usaremos 
+# el UserAdmin de Django el cual le dimos el alias de BaseUserAdmin.
 class UserAdmin(BaseUserAdmin):
   inlines = (ProfileInline,) # Con inlines desplegaremos los campos que hay que llenar asociados a Profile.
   list_display = ( # En list_display
@@ -911,7 +922,10 @@ from django.contrib.auth.models import User
 class Post(models.Model):
 
   user = models.ForeignKey(User, on_delete=models.CASCADE)
-  profile = models.ForeignKey('users.Profile', on_delete=models.CASCADE) # Con ForeignKey podemos relacionar el modelo de posts con profile, y para hacer referencia a la clase relacionada lo hacemos con el formato de 'aplicacion.NombreClaseDelModelo'.
+  # Con ForeignKey podemos relacionar el modelo de posts con profile, 
+  # y para hacer referencia a la clase relacionada lo hacemos con 
+  # el formato de 'aplicacion.NombreClaseDelModelo'.
+  profile = models.ForeignKey('users.Profile', on_delete=models.CASCADE)
 
   title = models.CharField(max_length=255)
   photo = models.ImageField(upload_to='post/photos')
@@ -957,7 +971,8 @@ urlpatterns = [
 
     path('posts/', posts_views.list_posts),
 
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) # concatenamos static con los valores definidos en settings.py
+  # concatenamos static con los valores definidos en settings.py
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 ```
 
 Con esto estaría todo listo para que los valores definidos como links en los dashboard funcionen correctamente.
@@ -1140,7 +1155,8 @@ Como ahora este template esta fuera de la aplicación debemos referenciarla en e
 ...
 
 def list_posts(request):
-    # En la función que nos devuelve el render, debemos referenciar correctamente el template, en este caso a posts/feed.html
+    # En la función que nos devuelve el render, debemos referenciar correctamente el template, 
+    # en este caso a posts/feed.html
     return render(request, 'posts/feed.html', {'posts': posts})
 ```
 
@@ -1150,5 +1166,184 @@ Ahora si revisamos el path de la aplicación [http://localhost:8000/posts/](http
   <img 
     src="./readme_img/posts_navbar.png"
     width="60%"
+  >
+</div>
+
+## Login y protegiendo vistas
+
+Vamos a crear el login de nuestra aplicación, y este estara alojado en la aplicaciónde **users**. Tambien protegeremos las vistas de **posts** para solo poder acceder a ellas cuando estemos iniciados.
+
+Primero que todo llego la hora de poner **alias a las rutas** de nuestro proyecto, de esta forma podemos referenciar al alias en cualquier parte de nuestra aplicación sin preocuparnos si cambian el path, para esto iremos a _urls.py_
+
+```py
+from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
+from django.urls import path
+
+from photogram import views as local_views
+from posts import views as posts_views
+from users import views as users_views
+
+urlpatterns = [
+
+    path('admin/', admin.site.urls),
+    
+    # A los path podemos asignarles valores a la variable name indicando un alias a la ruta
+    path('hello-world/', local_views.hello_world, name='hello_world'),
+    path('numbers/', local_views.numbers, name='sort'),
+    path('hi/<str:name>/<int:age>/', local_views.say_hi, name='hi'),
+
+    path('posts/', posts_views.list_posts, name='feed'),
+
+    path('users/login/', users_views.login_view, name='login')
+
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+```
+
+En el archivo _users/**views.py**_ vamos a renderizar el **login**
+
+```py
+# Django
+# Importamos authenticate y login
+from django.contrib.auth import authenticate, login
+# Redirect nos ayudara a redireccionarnos a otro path
+from django.shortcuts import render, redirect
+
+def login_view(request):
+  if request.method == 'POST':
+    username = request.POST['username']
+    password = request.POST['password']
+    # El metodo authenticate tratara de contrastar el usuario 
+    # con una instancia del modelo users que creamos.
+    user = authenticate(request, username=username, password=password)
+    if user:
+      # En caso de ser exitoso la autenticación creara 
+      # un token de nuestro usuario para almacenarlo en memoria.
+      login(request, user)
+      # Y nos redireccionaremos al path con alias 'feed' que es 'posts/'
+      return redirect('feed')
+    else:
+      # En caso de dar false la autenticacion volveremos a renderizar el login, 
+      # pero enviando la variable 'error'
+      return render(request, 'users/login.html', {'error': 'Invalid username and password'})
+  return render(request, 'users/login.html')
+```
+
+En _templates/users_ crearemos 2 archivos, **base.html** y **login.html**. La razón del porque ocuparemos un base distinto al anterior es por que a nivel de contenido son distintos, sin embargo _template/users/**login.html**_ extendera de _template/users/**base.html**_
+
+```html
+<!-- Archivo template/users/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  {% block head_content %}{% endblock %}
+
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" crossorigin="anonymous" />
+  <link rel="stylesheet" href="{% static 'css/main.css' %}" />
+
+</head>
+<body class="h-100">
+
+  <div class="container h-100">
+    <div class="row h-100 justify-content-center align-items-center">
+      <div class="col-sm-12 col-md-5 col-lg-5 pt-2 pl-5 pr-5 pb-5" id="auth-container">
+
+        <img src="{% static "img/instagram.png" %}" class="img-fluid rounded mx-auto d-block pb-4" style="max-width: 60%;">
+
+        {% block container %}{% endblock%}
+
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
+```
+
+```html
+<!-- Archivo template/users/login.html -->
+{% extends "users/base.html" %}
+
+{% block head_content %}
+<title>Platzigram sign in</title>
+{% endblock %}
+
+{% block container %}
+
+<!-- Como anteriormente le dimos un alias al path 'users/login/' ahora lo invocaremos como 'login'. -->
+<form method="POST" action="{% url 'login' %}">
+
+  <!-- En caso de que estemos recibiendo la variable 'error' en el renderizado lo mostraremos. -->
+  {% if error %}
+    <p style="color: red;">{{ error }}</p>
+  {% endif %}
+
+  <!-- csrf_token es un metodo de Django para evitar ataques CSRF. Te lo explico mejor abajo. -->
+  {% csrf_token %}
+
+  <input type="text" placeholder="Username" name="username" />
+  <input type="password" placeholder="Password" name="password" />
+
+  <button type="submit">Sign in!</button>
+
+</form>
+
+{% endblock %}
+```
+
+Si observarte bien en el archivo _login.html_ hacemos uso del metodo _csrf_token_ de Django. Este método evita un tipo de exploit malicioso llamado "Cross-site request forgery", el cual consiste en llenados de formularios desde fuera del sitio. La forma en la que trabaja _csrf_token_ es que cuando se realiza una peticion 'GET' se te envia un token único, y cuando realizas el submit del formulario con un metodo 'POST' se va a revisar el token que conseguiste antes, de esta forma se evita el exploit.
+
+<div align="center">
+  <img 
+    src="./readme_img/csrf_token.png"
+    width="80%"
+  >
+</div>
+
+Ahora para **proteger** las vistas de _posts_ y solo podamos acceder a ellas si hemos **iniciado sesión** vamos al archivo _settings.py_ de nuestro proyecto y al fondo del código creamos la variable **LOGIN_URL** con el path de nuestro **login**, de esta forma nos redigira al path definido si tratamos de renderizar una vista protegida.
+
+```py
+...
+# Usamos el alias del path de login
+LOGIN_URL = 'login'
+```
+
+Ahora para proteger las vistas debemos ir al archivo views.py de nuestra aplicación.
+
+```py
+# Django
+# Importamos login_required
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+
+...
+
+# Decoramos con login_required la función que renderiza nuestra vista, 
+# el cual ahora necesitara una sesión iniciada para poder renderizarse. 
+# En caso de no estarlo nos redirigira al path de login.
+@login_required
+def list_posts(request):
+  return render(request, 'posts/feed.html', {'posts': posts})
+```
+
+Ahora veamos las vistas protegidas en acción. Primero con un usuario **sin registrar.**
+
+<div align="center">
+  <img 
+    src="./readme_img/unregisted_protected.gif"
+    width="80%"
+  >
+</div>
+
+Y segundo con un usario **registrado**.
+
+<div align="center">
+  <img 
+    src="./readme_img/registed_protected.gif"
+    width="80%"
   >
 </div>
