@@ -45,6 +45,7 @@
   - [Login y protegiendo vistas](#Login-y-protegiendo-vistas)
   - [Logout](#Logout)
   - [Signup](#Signup)
+  - [Middlewares](#Middlewares)
 
 # Preparando entorno
 
@@ -1526,3 +1527,113 @@ urlpatterns = [
 
 ...
 ```
+
+## Middlewares
+
+El término **middleware** se refiere a un sistema de software que ofrece servicios y funciones comunes para las aplicaciones. En general, el middleware se encarga de las tareas de gestión de datos, servicios de aplicaciones, mensajería, autenticación y gestión de API.
+
+En este apartado aprenderemos como crear nuestro propio **middleware**, este no permitira la navegación en la aplicación si es que el usuario **no tiene fotografia o biografía.**
+
+Primero crearemos un template del perfil donde el usuario podra modificar su información. Este template sera simple por el momento y estara en _templates/users/**update_profile.html**_ 
+
+```html
+<!-- Archivo templates/users/update_profile.html -->
+{% extends "base.html" %}
+
+{% block head_content %}
+<title>@{{ request.user.username }} | Update profile</title>
+{% endblock %}
+
+{% block container %}
+  <h1 class="mt-5">@{{ request.user.username }}</h1>
+{% endblock %}
+```
+
+Ahora en nuestro archivo _users/views.py_ vamos a crear la funcion que renderizara el template recien creado.
+
+```py
+...
+
+def update_profile(request):
+  return render(request, 'users/update_profile.html')
+
+...
+```
+
+Luego de definir nuestra vista vamos asignarle un path dentro del archivo _urls.py_
+
+```py
+...
+
+urlpatterns = [
+  ...
+  
+  path('users/me/profile', users_views.update_profile, name='update_profile'),
+
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+```
+
+Llego el momento esperado, es hora de crear nuestro **middleware**. Por lo general los middleware se crean en la aplicación relacionada, pero **solo para efectos practicos** crearemos el nuestro en la carpeta principal de nuestro proyecto como **middleware.py**
+
+<div align="center">
+  <img 
+    src="./readme_img/middleware.png"
+    width="40%"
+  >
+</div>
+
+El **objetivo** de nuestro middleware es evitar que se pueda navegar por la aplicación si es que el usuario no tiene foto de perfil o no ha escrito su biografía, por lo que nuestro middleware contendra una clase que realizara todas estas validaciones.
+
+```py
+# Django
+# Para nuestro objetivo ocuparemos redirect para que el usuario
+# se dirija a la configuración en caso de no cumplir con los requisitos.
+from django.shortcuts import redirect
+# Usaremos reverse para hacer referencia al alias
+# de los path de nuestro proyecto.
+from django.urls import reverse
+
+class ProfileCompletionMiddleware:
+  # Este __init__ siempre ira, asi que es fundamental al crear tu clase
+  def __init__(self, get_response):
+    self.get_response = get_response
+
+  # Dentro de __call__ es donde realizaremos nuestras validaciones.
+  def __call__(self, request):
+    # En caso de que el usuario no sea anonimo.
+    if not request.user.is_anonymous:
+      profile = request.user.profile
+      
+      # Verificamos que la instacia de user tenga
+      # una foto o biografía.
+      if not profile.picture or not profile.biography:
+        # En caso de que no trate de navegar al path de
+        # 'update_profile' o 'logout'
+        if request.path not in [reverse('update_profile'), reverse('logout')]:
+          # Vamos a redireccionarlo al path de 'update_profile'
+          return redirect('update_profile')
+
+    # En caso de que cumple todos los requisitos devolvemos la solicitud original.
+    response = self.get_response(request)
+    return response
+```
+
+Nos falta un paso mas, tenemos que decirle a nuestro proyecto que ahora también debe usar este middleware para las peticiones. Para ello iremos al archivo _settings.py_ y lo incluiremos en la variable de **MIDDLEWARE.**
+
+```py
+MIDDLEWARE = [
+    # Django
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # Propios
+    # Referenciamos al middleware por el nombre de la clase
+    'photogram.middleware.ProfileCompletionMiddleware',
+]
+```
+
+Y con esto ya creamos nuestro primer middleware.
