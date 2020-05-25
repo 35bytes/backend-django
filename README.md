@@ -47,6 +47,7 @@
   - [Signup](#Signup)
   - [Middlewares](#Middlewares)
 - [Forms](#Forms)
+  - [Formularios en Django](##Formularios-en-Django)
 
 # Preparando entorno
 
