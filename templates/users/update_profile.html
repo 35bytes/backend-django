@@ -1,9 +1,70 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block head_content %}
 <title>@{{ request.user.username }} | Update profile</title>
 {% endblock %}
 
 {% block container %}
-  <h1 class="mt-5">@{{ request.user.username }}</h1>
+
+<div class="container">
+
+    <div class="row justify-content-md-center">
+        <div class="col-6 p-4" id="profile-box">
+
+            <form action="{% url 'update_profile' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                    <p>{{ form.errors }}</p>
+                {% endif %}
+
+                <div class="media">
+                    {% if profile.picture %}
+                        <img src="{{ profile.picture.url }}" class="rounded-circle" height="50" />
+                    {% else%}
+                        <img src="{% static 'img/default-profile.png' %}" class="rounded-circle" height="50" />
+                    {% endif %}
+
+                    <div class="media-body">
+                        <h5 class="ml-4">@{{ user.username }} | {{ user.get_full_name }}</h5>
+                        <p class="ml-4"><input type="file" name="picture" required="true"></p>
+                    </div>
+                </div>
+
+                <hr><br>
+
+                <div class="form-group">
+                    <label>Website</label>
+                    <input
+                        class="form-control"
+                        type="url"
+                        name="website"
+                        placeholder="Website"
+                        value="{{ profile.website }}"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label>Biography</label>
+                    <textarea class="form-control" name="biography">{{ profile.biography }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Phone number</label>
+                    <input
+                        class="form-control"
+                        type="text"
+                        name="phone_number"
+                        placeholder="Phone number"
+                        value="{{ profile.phone_number }}"
+                    />
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block mt-5">Update info</button>
+            </form>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

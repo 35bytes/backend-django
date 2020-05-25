@@ -46,6 +46,7 @@
   - [Logout](#Logout)
   - [Signup](#Signup)
   - [Middlewares](#Middlewares)
+- [Forms](#Forms)
 
 # Preparando entorno
 
@@ -1637,3 +1638,176 @@ MIDDLEWARE = [
 ```
 
 Y con esto ya creamos nuestro primer middleware.
+
+# Forms
+
+## Formularios en Django
+
+En esta sección veremos en acción los **forms** en Django. Primero que todo crearemos nuestro form en _templates/users/**update_profile.html**_ creado en la sección de [middlewares](#Middlewares).
+
+```html
+<!-- templates/users/update_profile.html -->
+{% extends "base.html" %}
+{% load static %}
+
+{% block head_content %}
+<title>@{{ request.user.username }} | Update profile</title>
+{% endblock %}
+
+{% block container %}
+
+<div class="container">
+
+  <div class="row justify-content-md-center">
+    <div class="col-6 p-4" id="profile-box">
+
+      <!-- Utilizaremos enctype="multipart/form-data" para referirnos a que existiran varios tipos de datos en nuestro metodo POST -->
+      <form action="{% url 'update_profile' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% if form.errors %}
+          <p>{{ form.errors }}</p>
+        {% endif %}
+
+        <div class="media">
+          {% if profile.picture %}
+            <img src="{{ profile.picture.url }}" class="rounded-circle" height="50" />
+          {% else%}
+            <img src="{% static 'img/default-profile.png' %}" class="rounded-circle" height="50" />
+          {% endif %}
+
+          <div class="media-body">
+            <h5 class="ml-4">@{{ user.username }} | {{ user.get_full_name }}</h5>
+            <p class="ml-4"><input type="file" name="picture" required="true"></p>
+          </div>
+        </div>
+
+        <hr><br>
+
+        <div class="form-group">
+          <label>Website</label>
+          <input
+            class="form-control"
+            type="url"
+            name="website"
+            placeholder="Website"
+            value="{{ profile.website }}"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Biography</label>
+          <textarea class="form-control" name="biography">{{ profile.biography }}</textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Phone number</label>
+          <input
+            class="form-control"
+            type="text"
+            name="phone_number"
+            placeholder="Phone number"
+            value="{{ profile.phone_number }}"
+          />
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block mt-5">Update info</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+```
+
+Django ya incorpora una **clase forms** del cual podemos hacer uso, asi que crearemos nuestra clase forms para crear un formulario de usuario.
+
+```py
+# Django
+from django import forms
+
+class ProfileForm(forms.Form):
+
+  website = forms.URLField(max_length=200, required=True)
+  biography = forms.CharField(max_length=500, required=False)
+  phone_number = forms.CharField(max_length=20, required=False)
+  picture = forms.ImageField()
+
+```
+
+En la documentación podras encontrar como trabajar con [formularios](https://docs.djangoproject.com/en/3.0/topics/forms/) y los [campos](https://docs.djangoproject.com/en/3.0/ref/forms/fields/) que puedes usar
+
+Para poder recibir los datos y guardarlos en nuestra base de datos vamos a ir a nuestra vista de la aplicación _users/**views.py**_ en donde crearemos la función que se encargara de ello.
+
+```py
+# Archivo users/views.py
+...
+
+# Forms
+# Importamos el ProfileForm que creamos anteriormente
+from users.forms import ProfileForm
+
+# En la vista de update_profile vamos a recibir el request.
+def update_profile(request):
+  
+  # Crearemos una variable que guardara el profile
+  # que esta realizando el request.
+  profile = request.user.profile
+
+  # Si el request es de tipo 'POST'
+  if request.method == 'POST':
+
+    # Crearemos una instancia de ProfileForm
+    # con los datos que recibimos a traves de request
+    form = ProfileForm(request.POST, request.FILES)
+
+    # Si la instacia se crea sin problemas.
+    if form.is_valid():
+
+      #Guardaremos los datos recibidos en base de datos.
+      data = form.cleaned_data
+
+      profile.website = data['website']
+      profile.phone_number = data['phone_number']
+      profile.biography = data['biography']
+      profile.picture = data['picture']
+      profile.save()
+      
+      # Y redireccionaremos a la pagina update_profile
+      # para reflejar los cambios.
+      return redirect('update_profile')
+  else:
+    form = ProfileForm()
+
+  return render(
+    request = request,
+    template_name = 'users/update_profile.html',
+
+    # Enviaremos al template los datos del usuario.
+    context = {
+      'profile': profile,
+      'user': request.user,
+      'form': form,
+    }
+  )
+
+...
+```
+
+Terminados estos pasos podremos ver nuestro profile con los datos de nuestro usuario y actualizarlos, preservando los datos.
+
+<div align="center">
+  <img 
+    src="./readme_img/profile.png"
+    width="60%"
+  >
+</div>
+
+En caso de que algun dato no cumpla con los requisitos establecidos en la clase form desplegaremos en pantalla los errores que tengamos.
+
+<div align="center">
+  <img 
+    src="./readme_img/profile_error.png"
+    width="60%"
+  >
+</div>
