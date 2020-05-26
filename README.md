@@ -49,6 +49,7 @@
 - [Forms](#Forms)
   - [Formularios en Django](#Formularios-en-Django)
   - [Mostrando el form en el template](#Mostrando-el-form-en-el-template)
+  - [Models forms y validación](#Models-forms-y-validación)
 
 # Preparando entorno
 
@@ -1934,3 +1935,110 @@ Con esto estos cambios ahora los valores ingresados **persistiran** en nuestro f
     width="60%"
   >
 </div>
+
+## Models forms y validación
+
+Hasta ahora hemos estado validando los datos a traves de la renderizacion de las vistas, sin embargo podemos validar directamente sobre los formularios los datos, simplificando la sintaxis de nuestro codigo y haciendolo mas legible.
+
+Para ello primero crearemos un archivo **forms.py** en nuestra aplicación _users_.
+
+```py
+# Archivo users/forms.py
+# Django
+# Django tiene una clase forms del cual podemos crear nuestros formularios.
+from django import forms
+
+# Models
+# Importaremos los modelos que crearemos a traves
+# de nuestro formulario.
+from django.contrib.auth.models import User
+from users.models import Profile
+
+class SignupForm(forms.Form):
+
+  # Definimos los campos.
+  username = forms.CharField(min_length=4, max_length=50)
+
+  password = forms.CharField(max_length=70, widget=forms.PasswordInput())
+  password_confirmation = forms.CharField(max_length=70, widget=forms.PasswordInput())
+
+  first_name = forms.CharField(min_length=2, max_length=50)
+  last_name = forms.CharField(min_length=2, max_length=50)
+
+  email = forms.CharField(min_length=6, max_length=70, widget=forms.EmailInput())
+
+  # verificamos que el username no exista.
+  def clean_username(self):
+    username = self.cleaned_data['username']
+    username_taken = User.objects.filter(username=username).exists()
+    if username_taken:
+      # En caso de existir devolvemos un mensaje de error.
+      raise forms.ValidationError('Username is already in use.')
+    
+    return username
+
+  def clean(self):
+    data = super().clean()
+
+    password = data['password']
+    password_confirmation = data['password_confirmation']
+
+    # Verificamos que las constraseñas coincidan.
+    if password != password_confirmation:
+      # En caso de ser distintas devolvemos un mensaje de error.
+      raise forms.ValidationError('Passwords do not match.')
+
+    return data
+
+  # Creamos una instancia de User y Profile.
+  def save(self):
+    data = self.cleaned_data
+    data.pop('password_confirmation')
+
+    user = User.objects.create_user(**data)
+    profile = Profile(user=user)
+    profile.save()
+
+```
+
+Ya que tenemos nuestro formulario creado lo aplicaremos en la vista de **signup** de la aplicación _users_.
+
+```py
+# Django
+...
+from django.shortcuts import render, redirect
+
+...
+
+# Forms
+# Importamos nuestro formulario
+from users.forms import SignupForm
+
+...
+
+def signup(request):
+  if request.method == 'POST':
+    # Le enviamos los datos de request a nuestro formulario
+    form = SignupForm(request.POST)
+    
+    # En caso de ser valido guarda las instancias
+    # y nos redirige al login.
+    if form.is_valid():
+      form.save()
+      return redirect('login')
+  
+  else:
+    form = SignupForm()
+
+  return render(
+    request=request,
+    template_name='users/signup.html',
+    context={
+      'form': form
+    }
+  )
+
+...
+```
+
+Con esta metodología hacemos uso de las herramientas de Django para crear formularios, facilitando el desarrollo y sintaxis de nuestro proyecto.
