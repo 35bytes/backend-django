@@ -48,6 +48,7 @@
   - [Middlewares](#Middlewares)
 - [Forms](#Forms)
   - [Formularios en Django](#Formularios-en-Django)
+  - [Mostrando el form en el template](#Mostrando-el-form-en-el-template)
 
 # Preparando entorno
 
@@ -1809,6 +1810,127 @@ En caso de que algun dato no cumpla con los requisitos establecidos en la clase 
 <div align="center">
   <img 
     src="./readme_img/profile_error.png"
+    width="60%"
+  >
+</div>
+
+## Mostrando el form en el template
+
+Si te diste cuenta en la sección anterior, si enviamos campos inválidos estos vuelven con el valor anterior que tenian. En esta sección haremos persistentes estos datos.
+
+Para ello solo tendremos que modificar nuestro _template/**update_profile.html**_
+
+```html
+{% extends "base.html" %}
+{% load static %}
+
+{% block head_content %}
+<title>@{{ request.user.username }} | Update profile</title>
+{% endblock %}
+
+{% block container %}
+
+<div class="container">
+
+    <div class="row justify-content-md-center">
+        <div class="col-6 p-4" id="profile-box">
+
+            <form action="{% url 'update_profile' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="media">
+                    {% if profile.picture %}
+                        <img src="{{ profile.picture.url }}" class="rounded-circle" height="50" />
+                    {% else%}
+                        <img src="{% static 'img/default-profile.png' %}" class="rounded-circle" height="50" />
+                    {% endif %}
+
+                    <div class="media-body">
+                        <h5 class="ml-4">@{{ user.username }} | {{ user.get_full_name }}</h5>
+                        <p class="ml-4"><input type="file" name="picture"></p>
+                    </div>
+                </div>
+
+                <!-- En caso de error con la imagen mostraremos un alert con el error -->
+                {% for error in form.picture.errors %}
+                <div class="alert alert-danger">
+                    <b>Picture: </b>{{ error }}
+                </div>
+                {% endfor %}
+
+                <hr><br>
+
+                <div class="form-group">
+                    <label>Website</label>
+                    <!-- Si hay un error le asignamos 
+                    la clase is-invalid de bootstrap,
+                    y en value persistimos el dato-->
+                    <input
+                        class="form-control {% if form.website.errors %}is-invalid{% endif %}"
+                        type="text"
+                        name="website"
+                        placeholder="Website"
+                        value="{% if form.errors %}{{ form.website.value }}{% else %}{{ profile.website }}{% endif %}"
+                    />
+                    <!-- Mostramos el error -->
+                    <div class="invalid-feedback">
+                        {% for error in form.website.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Biography</label>
+                    <!-- Si hay un error le asignamos 
+                    la clase is-invalid de bootstrap,
+                    y en value persistimos el dato-->
+                    <textarea 
+                        class="form-control form-control {% if form.biography.errors %}is-invalid{% endif %}"
+                        name="biography"
+                    >{% if form.errors %}{{ form.biography.value }}{% else %}{{ profile.biography }}{% endif %}</textarea>
+                    <!-- Mostramos el error -->
+                    <div class="invalid-feedback">
+                        {% for error in form.biography.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Phone number</label>
+                    <!-- Si hay un error le asignamos 
+                    la clase is-invalid de bootstrap,
+                    y en value persistimos el dato-->
+                    <input
+                        class="form-control form-control {% if form.phone_number.errors %}is-invalid{% endif %}"
+                        type="text"
+                        name="phone_number"
+                        placeholder="Phone number"
+                        value="{% if form.errors %}{{ form.phone_number.value }}{% else %}{{ profile.phone_number }}{% endif %}"
+                    />
+                    <!-- Mostramos el error -->
+                    <div class="invalid-feedback">
+                        {% for error in form.phone_number.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block mt-5">Update info</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+```
+
+Con esto estos cambios ahora los valores ingresados **persistiran** en nuestro formulario sin importar si existe un error, ademas de mostrarlos de forma estilizadas.
+
+<div align="center">
+  <img 
+    src="./readme_img/profile_error_styled.png"
     width="60%"
   >
 </div>
